@@ -1,0 +1,24 @@
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+::-webkit-scrollbar {
+  cursor: pointer;
+  width: 8px; /* Chiều rộng của thanh cuộn */
+}
+
+::-webkit-scrollbar-track {
+  cursor: pointer;
+  background: #121212; /* Màu nền của phần track */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #555; /* Màu của phần thumb */
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #666; /* Màu của phần thumb */
+}
