@@ -11,6 +11,7 @@ import {
   InputRightElement,
   InputGroup,
   Select,
+  Spinner,
 } from "@chakra-ui/react";
 import Logo from "../../components/Logo";
 import ButtonCustom from "../../components/Button";
@@ -24,6 +25,8 @@ import {
   convertMonths,
   convertDays,
 } from "../../utils/getTime";
+import { Link, Navigate, useNavigate } from "react-router-dom";
+import useSignup from "../../hooks/auth/useSignup";
 
 const Signup = () => {
   const [user, setUser] = useState({
@@ -38,6 +41,8 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [nextInfo, setNextInfo] = useState(false);
+
+  const navigate = useNavigate();
 
   const [birthday, setBirthday] = useState({
     day: "",
@@ -54,9 +59,35 @@ const Signup = () => {
     });
   }, [birthday.year, birthday.month, birthday.day]);
 
-  console.log(user.birthday);
+  const { loading, signup } = useSignup();
 
-  // console.log(birthday.year, birthday.month, birthday.day);
+  const handleSignUp = async (e) => {
+    e.preventDefault();
+    await signup(
+      user.username,
+      user.password,
+      user.email,
+      user.confirmPassword,
+      user.fullName,
+      user.gender,
+      user.birthday
+    );
+    setUser({
+      username: "",
+      fullName: "",
+      password: "",
+      confirmPassword: "",
+      email: "",
+      gender: "",
+      birthday: "",
+    });
+    setBirthday({
+      day: "",
+      month: "",
+      year: "",
+    });
+    navigate("/login");
+  };
 
   const handleNext = (e) => {
     e.preventDefault();
@@ -159,27 +190,30 @@ const Signup = () => {
                     : true
                 }
                 bgColor="#4cb5f9"
+                color="white"
               >
                 Next
               </ButtonCustom>
 
-              <Box mt="20px" color="white" width="100%">
-                <Text w="100%" textAlign="center">
-                  Already have an account?{" "}
-                  <Box
-                    as="span"
-                    color="#4cb5f9"
-                    cursor="pointer"
-                    fontWeight="bold"
-                    _hover={{ textDecoration: "underline" }}
-                  >
-                    Login now
-                  </Box>
-                </Text>
-              </Box>
+              <Link to="/login">
+                <Box mt="20px" color="white" width="100%">
+                  <Text w="100%" textAlign="center">
+                    Already have an account?{" "}
+                    <Box
+                      as="span"
+                      color="#4cb5f9"
+                      cursor="pointer"
+                      fontWeight="bold"
+                      _hover={{ textDecoration: "underline" }}
+                    >
+                      Login now
+                    </Box>
+                  </Text>
+                </Box>
+              </Link>
             </form>
           ) : (
-            <form style={{ padding: "20px 0" }}>
+            <form style={{ padding: "20px 0" }} onSubmit={handleSignUp}>
               <FormControl>
                 <FormLabel color="white">Your Birthday</FormLabel>
                 <Flex justify="space-between">
@@ -278,7 +312,7 @@ const Signup = () => {
                 <InputCustom
                   type="text"
                   placeholder="Enter your full name..."
-                  value={user.fullName}
+                  value={user?.fullName}
                   onChange={(e) =>
                     setUser({ ...user, fullName: e.target.value })
                   }
@@ -296,14 +330,14 @@ const Signup = () => {
                   borderRadius="5px"
                   mb={3}
                   sx={{ backgroundColor: "#29292c" }}
-                  value={user.gender}
+                  value={user?.gender}
                   onChange={(e) => setUser({ ...user, gender: e.target.value })}
                 >
                   <option style={{ color: "black", cursor: "pointer" }}>
-                    Male
+                    male
                   </option>
                   <option style={{ color: "black", cursor: "pointer" }}>
-                    Female
+                    female
                   </option>
                 </Select>
               </FormControl>
@@ -311,18 +345,19 @@ const Signup = () => {
               <ButtonCustom
                 width="100%"
                 disable={
-                  user.fullName.trim() &&
+                  user?.fullName.trim() &&
                   birthday.day.trim() &&
                   birthday.month.trim() &&
                   birthday.year.trim() &&
-                  user.gender.trim()
+                  user?.gender.trim()
                     ? false
                     : true
                 }
                 bgColor="#4cb5f9"
                 mb={2}
+                color="white"
               >
-                Signup
+                {loading ? <Spinner color="red.500" /> : "Signup"}
               </ButtonCustom>
               <Box
                 width="100%"

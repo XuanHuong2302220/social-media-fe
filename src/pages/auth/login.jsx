@@ -10,11 +10,15 @@ import {
   Image,
   InputRightElement,
   InputGroup,
+  Spinner,
 } from "@chakra-ui/react";
 import Logo from "../../components/Logo";
 import ButtonCustom from "../../components/Button";
 import banner from "../../assets/image/banner.png";
 import InputCustom from "../../components/InputCustom";
+import { Link } from "react-router-dom";
+import useLogin from "../../hooks/auth/useLogin";
+import useForgotPassword from "../../hooks/auth/useForgotPassword";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -23,9 +27,19 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [forgotPassword, setForgetPassword] = useState(false);
 
-  const handleSubmitLogin = (e) => {
+  const { loading, login } = useLogin();
+  const { forgetPassword, loadingForgetPassword } = useForgotPassword();
+
+  const handleSubmitLogin = async (e) => {
     e.preventDefault();
     console.log(username, password);
+    await login(username, password);
+  };
+
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    await forgetPassword(email);
+    setEmail("");
   };
 
   return (
@@ -38,13 +52,15 @@ const Login = () => {
         />
 
         <Box width="350px" p={5} h="350px">
-          <Logo />
+          <Link to="/">
+            <Logo />
+          </Link>
           {!forgotPassword ? (
             <form onSubmit={handleSubmitLogin}>
               <FormControl py={5}>
                 <FormLabel color="white">username</FormLabel>
                 <InputCustom
-                  type="text"
+                  type={username.includes("@") ? "email" : "text"}
                   placeholder="username or email..."
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
@@ -84,24 +100,27 @@ const Login = () => {
                   width="100%"
                   disable={username.trim() && password.trim() ? false : true}
                   bgColor="#4cb5f9"
+                  color="white"
                 >
-                  Login
+                  {loading ? <Spinner color="red.500" /> : "Login"}
                 </ButtonCustom>
-                <Flex p={5} gap="10px" align="center" justify="center">
-                  <Text color="white">Don&apos;t have an account? </Text>
-                  <Text
-                    color="#4cb5f9"
-                    cursor="pointer"
-                    fontWeight="bold"
-                    _hover={{ textDecoration: "underline" }}
-                  >
-                    Sign up
-                  </Text>
-                </Flex>
+                <Link to="/sigup">
+                  <Flex p={5} gap="10px" align="center" justify="center">
+                    <Text color="white">Don&apos;t have an account? </Text>
+                    <Text
+                      color="#4cb5f9"
+                      cursor="pointer"
+                      fontWeight="bold"
+                      _hover={{ textDecoration: "underline" }}
+                    >
+                      Sign up
+                    </Text>
+                  </Flex>
+                </Link>
               </FormControl>
             </form>
           ) : (
-            <form>
+            <form onSubmit={handleForgotPassword}>
               <FormLabel color="white">Email</FormLabel>
               <InputCustom
                 type="email"
@@ -113,8 +132,9 @@ const Login = () => {
                 width="100%"
                 disable={email.trim() ? false : true}
                 bgColor="#4cb5f9"
+                color={"white"}
               >
-                Submit
+                {loadingForgetPassword ? <Spinner color="red.500" /> : "Submit"}
               </ButtonCustom>
               <Box
                 width="100%"
@@ -122,6 +142,7 @@ const Login = () => {
                 fontSize="14px"
                 _hover={{ cursor: "pointer", textDecoration: "underline" }}
                 onClick={() => setForgetPassword(false)}
+                mt="5px"
               >
                 Return Previos
               </Box>

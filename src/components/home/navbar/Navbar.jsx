@@ -18,6 +18,7 @@ import IconCustom from "../../IconCustom";
 import ProfileDropdown from "../profile/ProfileDropdown";
 import NavbarButton from "./NavbarButton";
 import MiniMessageBox from "../message/MiniMessageBox";
+import { Link, Outlet } from "react-router-dom";
 
 const Navbar = () => {
   const [active, setActive] = useState(false);
@@ -54,8 +55,6 @@ const Navbar = () => {
     };
   }, []);
 
-  console.log(activeMessBoxes);
-
   return (
     <>
       <Flex
@@ -71,7 +70,9 @@ const Navbar = () => {
       >
         {/* Logo and search bar */}
         <Flex gap="10px" pos="relative">
-          <Image src={logo} alt="logo" boxSize="40px" />
+          <Link to="/">
+            <Image src={logo} alt="logo" boxSize="40px" cursor="pointer" />
+          </Link>
           <Input
             onFocus={() => {
               setFocus(true);
@@ -79,6 +80,7 @@ const Navbar = () => {
             borderRadius="15px"
             placeholder="Search"
             width="300px"
+            display={{ base: "none", sm: "none", md: "none", lg: "block" }}
             bgColor="#28353E"
             color="#B8CBD9"
             borderColor="#28353E"
@@ -87,8 +89,16 @@ const Navbar = () => {
 
           {/* condition open searchBox */}
           {focus ? (
-            <ResultBox>
-              <SearchUser fullname="Ngo Xuan Huong" searchPost />
+            <ResultBox
+              display={{ base: "none", sm: "none", md: "none", lg: "block" }}
+            >
+              <Link to="/profile/:me">
+                <SearchUser
+                  fullname="Ngo Xuan Huong"
+                  searchPost
+                  onClick={() => setFocus(false)}
+                />
+              </Link>
               <SearchUser fullname="Ngo Xuan Huong" searchPost />
               <SearchUser fullname="Ngo Xuan Huong" searchPost />
               <SearchUser fullname="Ngo Xuan Huong" searchPost />
@@ -97,7 +107,11 @@ const Navbar = () => {
           ) : null}
         </Flex>
 
-        <Flex gap="20px" align="center" pos="relative">
+        <Flex
+          gap={{ base: "5px", sm: "5px", lg: "20px" }}
+          align="center"
+          pos="relative"
+        >
           {/* Home bar */}
           <NavbarButton active={activeHome} text="Home" />
           {/* message bar */}
@@ -131,9 +145,10 @@ const Navbar = () => {
             </Center>
             <Flex
               maxWidth="150px"
+              width="auto"
               borderRadius="20px"
-              bgColor="#28353E"
-              rounded="30px"
+              bgColor={{ base: "bgColor", sm: "bgColor", lg: "#28353E" }}
+              rounded={{ base: "50%", sm: "100%", lg: "30px" }}
               color="white"
               alignItems="center"
               gap="10px"
@@ -147,10 +162,15 @@ const Navbar = () => {
               pos={"relative"}
             >
               <Avatar size="sm" />
-              <Text fontSize="12px" color="white" isTruncated>
+              <Text
+                fontSize="12px"
+                color="white"
+                isTruncated
+                display={{ base: "none", sm: "none", lg: "block" }}
+              >
                 Ngo Xuan Huong
               </Text>
-              <IconCustom>
+              <IconCustom display={{ base: "none", sm: "none", lg: "flex" }}>
                 <IoMdArrowDropdown />
               </IconCustom>
             </Flex>
@@ -183,6 +203,7 @@ const Navbar = () => {
           />
         ))}
       </Flex>
+      <Outlet />
     </>
   );
 };

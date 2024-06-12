@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
   Avatar,
   Box,
@@ -6,6 +6,7 @@ import {
   Image,
   Text,
   useDisclosure,
+  useOutsideClick,
 } from "@chakra-ui/react";
 import IconCustom from "../../IconCustom";
 import { BsThreeDots } from "react-icons/bs";
@@ -13,39 +14,84 @@ import Interact from "./Interact";
 import { FaRegComment } from "react-icons/fa";
 import { FaHeart } from "react-icons/fa";
 
-import banner from "../../../assets/image/jiwon.jpg";
 import ModalComment from "./comment/ModalComment";
+import { Link } from "react-router-dom";
+import Popover from "../../popover/Popover";
+import ModalDeletePost from "./../../modals/ModalDeletePost";
+import Modals from "../Modals";
+import useCreateLike from "../../../hooks/like/useCreateLike";
+import useGetLike from "../../../hooks/like/useGetLike";
 
-const limitWords = (content, limit) => {
-  const words = content.split(" ");
-  if (words.length > limit) {
-    return words.slice(0, limit).join(" ") + " ";
-  } else return words;
-};
-
-const Post = ({ width, offModal }) => {
-  const [seemore, setSeemore] = useState(true);
-  const [content, setContent] = useState("");
-  const [like, setLike] = useState(true);
-  const [quantityLike, setQuantityLike] = useState(0);
+const Post = ({ width, offModal, post }) => {
+  const [seemore, setSeemore] = useState(false);
+  const [like, setLike] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [popover, setPopover] = useState(false);
 
-  useEffect(() => {
-    setContent(`Mới đây, Lope Phạm - người đã đồng hành cùng MCK trong album '99%' -
-    đã liên tục đăng những bài viết hàm ý bức xúc hướng đến MCK. Cụ thể,
-    Lope Phạm đã đăng một story với dòng chữ "Không trả lời tất cả câu
-    hỏi liên quan đến Nghiêm Vũ Hoàng Long, MCK hay tất cả vấn đề liên
-    quan đến Album". Và ngay sau đó là bài viết với caption đầy ẩn ý: "i
-    dont need another fake friend, brodie". quan đến Album". Và ngay sau
-    đó là bài viết với caption đầy ẩn ý: "i dont need another fake
-    friend, brodie". quan đến Album". Và ngay sau đó là bài viết với
-    caption đầy ẩn ý: "i dont need another fake friend, brodie".
-    `);
-  }, []);
+  const limitWords = (content, limit) => {
+    if (!content) return;
+    const words = content.split(" ");
+    if (words.length > limit) {
+      return words.slice(0, limit).join(" ") + " ";
+    } else return words;
+  };
+
+  // outSideClick
+  const popoverRef = useRef();
+  useOutsideClick({
+    ref: popoverRef,
+    handler: () => {
+      setPopover(false);
+    },
+  });
 
   //format number
   const formatNumber = (number) => {
     return number.toLocaleString("en-US");
+  };
+
+  // handleDeleteClick
+  const {
+    isOpen: isOpenDelete,
+    onOpen: onOpenDelete,
+    onClose: onCloseDelete,
+  } = useDisclosure();
+  const handleDeleteClick = () => {
+    onOpenDelete();
+  };
+
+  //handle click update
+  const {
+    isOpen: isOpenUpdate,
+    onOpen: onOpenUpdate,
+    onClose: onCloseUpdate,
+  } = useDisclosure();
+  const handleUpdateClick = () => {
+    onOpenUpdate();
+  };
+
+  //handle like post
+  const { createLike } = useCreateLike();
+  const handleLikePost = async () => {
+    setLike(!like);
+    if (like) {
+      //call api create like
+      await createLike(post._id);
+    } else {
+      //call api delete like
+    }
+  };
+
+  //get like
+  const { likes } = useGetLike(post._id);
+
+  const handleLike = () => {
+    //call api get like
+    if (likes) {
+      setLike(true);
+    } else {
+      setLike(false);
+    }
   };
 
   return (
@@ -63,22 +109,54 @@ const Post = ({ width, offModal }) => {
         {/* infor user */}
         <Flex align="center" justify="space-between" pb={3}>
           <Flex gap="10px">
-            <Avatar />
+            <Link to="/profile/:id">
+              <Avatar cursor="pointer" />
+            </Link>
             <Box>
-              <Text fontWeight="bold">Ngo Xuan Huong</Text>
+              <Link to="/profile/:id">
+                <Text
+                  fontWeight="bold"
+                  _hover={{ cursor: "pointer", textDecoration: "underline" }}
+                >
+                  {post?.authorName}
+                </Text>
+              </Link>
               <Text color="GrayText" fontSize="12px">
                 five minutes ago
               </Text>
             </Box>
           </Flex>
-          <IconCustom>
-            <BsThreeDots />
-          </IconCustom>
+          <Box pos="relative" ref={popoverRef}>
+            <IconCustom onClick={() => setPopover(true)}>
+              <BsThreeDots />
+            </IconCustom>
+
+            {popover && (
+              <Popover
+                onClick={handleDeleteClick}
+                onUpdateClick={handleUpdateClick}
+              />
+            )}
+            <ModalDeletePost
+              onClose={onCloseDelete}
+              isOpen={isOpenDelete}
+              postId={post._id}
+              postImg={post.image}
+            />
+            <Modals
+              isOpen={isOpenUpdate}
+              onClose={onCloseUpdate}
+              valueUpdate={post?.title}
+              imageUpdate={post?.image}
+              update
+              postId={post._id}
+            />
+          </Box>
         </Flex>
 
         {/* content */}
-        <Text fontSize="14px">
-          {seemore ? limitWords(content, 150) : content}
+        <Text fontSize="20px" px={2}>
+          {seemore ? limitWords(post?.title, 150) : post?.title}
           {seemore && (
             <Box
               as="span"
@@ -98,7 +176,7 @@ const Post = ({ width, offModal }) => {
         {/* image */}
         <Image
           w="100%"
-          src={banner}
+          src={post?.image}
           mt={3}
           cursor="pointer"
           h="auto"
@@ -106,18 +184,18 @@ const Post = ({ width, offModal }) => {
         />
 
         {/* interact and comments */}
-        <Flex py={3} justify="space-between" align="center">
+        <Flex py={3} justify="space-between" align="center" px={2}>
           <Box
             as="span"
             color="GrayText"
             fontSize="14px"
             _hover={{
-              cursor: quantityLike > 0 && "pointer",
-              textDecoration: quantityLike > 0 && "underline",
+              cursor: post?.like > 0 && "pointer",
+              textDecoration: post?.like > 0 && "underline",
             }}
           >
-            {quantityLike > 0
-              ? formatNumber(quantityLike) + "Like"
+            {post?.like > 0
+              ? formatNumber(post?.like) + "Like"
               : "Be the first to like this"}
           </Box>
 
@@ -130,15 +208,18 @@ const Post = ({ width, offModal }) => {
               textDecoration: "underline",
             }}
           >
-            1k Comments
+            {post?.comment + " Comments"}
           </Box>
         </Flex>
 
         <Flex justify="space-between" gap={2}>
-          <Interact pos="relative" onClick={() => setLike(!like)}>
-            <FaHeart color={like && "#ff3040"} style={{ fontSize: "20px" }} />
+          <Interact pos="relative" onClick={handleLikePost}>
+            <FaHeart
+              color={like ? "#ff3040" : null}
+              style={{ fontSize: "20px" }}
+            />
 
-            <Box as="span" color={like && "#ff3040"} fontWeight="bold">
+            <Box as="span" color={like ? "#ff3040" : null} fontWeight="bold">
               Like
             </Box>
           </Interact>
@@ -153,7 +234,7 @@ const Post = ({ width, offModal }) => {
         {/* modal comment */}
       </Flex>
       {!offModal && (
-        <ModalComment isOpenModal={isOpen} onCloseModal={onClose} />
+        <ModalComment isOpenModal={isOpen} onCloseModal={onClose} post={post} />
       )}
     </Box>
   );

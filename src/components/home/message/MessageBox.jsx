@@ -22,6 +22,7 @@ const MessageBox = ({
           overflowY="scroll"
           maxH="500px"
           overflowX="hidden"
+          width="100%"
         >
           <Flex align="center" justify="space-between">
             <Text fontSize="25px" fontWeight="bold">

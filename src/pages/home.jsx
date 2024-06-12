@@ -4,26 +4,48 @@ import Suggestions from "../components/home/Suggestions";
 import CreatePost from "../components/home/post/CreatePost";
 import Post from "../components/home/post/Post";
 import UserOnline from "../components/home/UserOnline";
-import Navbar from "../components/home/navbar/Navbar";
+import useGetPostHome from "../hooks/post/useGetPostHome";
 
 const Home = () => {
+  const { loading, posts } = useGetPostHome();
+
+  console.log("posts", posts);
+
   return (
-    <Box w={{ sm: "30%", md: "60%", lg: "100%" }} h="auto" bgColor="bgColor">
-      <Navbar />
+    <Box
+      w="100%"
+      h="100vh"
+      bgColor="bgColor"
+      overflowY={posts.length < 1 ? "hidden" : "auto"}
+      maxH={posts.length < 1 && "100vh"}
+    >
       <Flex pt="70px" px={6} gap="15px">
         <Flex direction="column" h="100%" pos="fixed">
           <MyProfile />
           <Suggestions />
         </Flex>
 
-        <Flex
-          direction="column"
-          w={{ sm: "100%", md: "100%", lg: "70%" }}
-          ml="370px"
-        >
+        <Flex direction="column" ml={{ lg: "370px" }} w="70%">
           <CreatePost />
-          <Post />
-          <Post />
+
+          {posts.length < 1 && !loading ? (
+            <Flex
+              w="100%"
+              h="100vh"
+              bgColor="bgColor"
+              overflowY="hidden"
+              color="GrayText"
+              p={100}
+              fontSize="30px"
+              fontWeight="bold"
+            >
+              Let's make friend to watch more post{" "}
+            </Flex>
+          ) : (
+            posts.map((item) => {
+              return <Post key={item._id} post={item} />;
+            })
+          )}
         </Flex>
 
         <Flex
@@ -31,7 +53,7 @@ const Home = () => {
           pos="fixed"
           color="white"
           right="31px"
-          width={{ sm: "0", md: "0", lg: "23%" }}
+          width="23%"
           height="100%"
         >
           <UserOnline />

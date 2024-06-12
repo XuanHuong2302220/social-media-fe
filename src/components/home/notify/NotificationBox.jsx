@@ -11,8 +11,16 @@ const NotificationBox = () => {
     setActiveAll(true);
   }, []);
   return (
-    <ResultBox overflowY="scroll">
-      <Flex flexDirection="column" p={2} gap="10px">
+    <ResultBox maxH="600px">
+      <Flex
+        direction="column"
+        px={3}
+        gap="10px"
+        overflowY="scroll"
+        maxH="500px"
+        overflowX="hidden"
+        width="100%"
+      >
         <Text fontSize="25px" fontWeight="bold">
           Notification
         </Text>

@@ -38,14 +38,24 @@ const SearchUser = ({
       >
         {(searchPost || searchMess || follow) && (
           <Flex align="center" gap={"10px"}>
-            <Avatar name={name} src={src} boxSize={mess ? "55px" : "40px"} />{" "}
+            <Avatar
+              size="sm"
+              name={name}
+              src={src}
+              boxSize={mess ? "55px" : "40px"}
+            />{" "}
             <Text fontWeight="bold">{fullname}</Text>
           </Flex>
         )}
         {mess && (
           <>
-            <Avatar name={name} src={src} boxSize={mess ? "55px" : "40px"} />
-            <Flex flexDirection="column" width="300px">
+            <Avatar
+              name={name}
+              src={src}
+              size="md"
+              boxSize={mess ? "55px" : "40px"}
+            />
+            <Flex flexDirection="column" width={{ base: "150px", lg: "300px" }}>
               <Text fontWeight="bold">{fullname}</Text>
               <Text
                 isTruncated

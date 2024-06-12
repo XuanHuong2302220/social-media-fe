@@ -26,6 +26,7 @@ const ButtonCustom = ({
       zIndex={zIndex && zIndex}
       borderRadius={borderRadius && borderRadius}
       position={pos}
+      fontWeight="bold"
     >
       {children}
     </Button>

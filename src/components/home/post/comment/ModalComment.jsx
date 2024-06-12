@@ -20,7 +20,7 @@ import Post from "../Post";
 import Comment from "./Comment";
 import InputPost from "../InputPost";
 
-const ModalComment = ({ isOpenModal, onCloseModal }) => {
+const ModalComment = ({ isOpenModal, onCloseModal, post }) => {
   const [customClose, setCustomClose] = useState(false);
   const { isOpen, onClose, onOpen } = useDisclosure();
 
@@ -46,44 +46,48 @@ const ModalComment = ({ isOpenModal, onCloseModal }) => {
           w="50%"
           maxW="60%"
           color="white"
-          position="fixed"
+          position="relative"
           top="20px"
-          height="80%"
-          overflowY="auto"
+          height="auto"
+          overflowX="hidden"
+          maxH="80%"
         >
-          <ModalBody>
+          <ModalBody overflowY="auto">
             <Flex
               textAlign="center"
-              pos="fixed"
-              w="50%"
-              left="25%"
+              pos="absolute"
+              w="100%"
               fontSize="20px"
               fontWeight="bold"
               align="center"
               height="60px"
               justify="center"
               bgColor="gray.700"
-              top="12%"
+              top="0"
+              left="0"
               zIndex="9999"
             >
-              <Text>Post's Ngo Xuan Huong</Text>
+              <Text>Post's {post.authorName}</Text>
               <ModalCloseButton />
             </Flex>
             <Flex direction="column" mt="30px" mb="100px">
-              <Post width="100%" offModal />
-              <Comment />
-              <Comment />
-              <Comment />
+              <Post width="100%" offModal post={post} />
+              <Flex direction="column">
+                <Comment />
+                <Comment />
+                <Comment />
+                <Comment />
+              </Flex>
             </Flex>
             <Flex
               gap="10px"
               px={3}
               mt="10px"
-              pos="fixed"
-              bottom="57px"
-              w="50%"
+              pos="absolute"
+              bottom="0"
+              w="100%"
               bgColor="gray.700"
-              left="25%"
+              left="0"
               py={2}
             >
               <Avatar />

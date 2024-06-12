@@ -6,8 +6,8 @@ const CreatePost = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
-    <Flex direction="column" w="100%" bgColor="itemColor" p={4} rounded="15px">
-      <Flex align="center" gap="10px">
+    <Flex direction="column" w="70%" bgColor="itemColor" p={4} rounded="15px">
+      <Flex align="center" gap="10px" onClick={onOpen} cursor="pointer">
         <Avatar />
         <Box
           width="100%"
@@ -20,7 +20,6 @@ const CreatePost = () => {
             cursor: "pointer",
             opacity: "0.8",
           }}
-          onClick={onOpen}
         >
           What's happenning?
         </Box>

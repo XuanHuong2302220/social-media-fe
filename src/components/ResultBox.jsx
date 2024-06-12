@@ -9,10 +9,12 @@ const ResultBox = ({
   right,
   overflowY,
   maxH,
+  display,
 }) => {
   return (
     <Box
       mt={1}
+      display={display}
       overflowY={overflowY}
       pos="absolute"
       boxShadow="0 0 5px rgba(0, 0, 0, 0.5)"

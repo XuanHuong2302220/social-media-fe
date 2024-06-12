@@ -11,10 +11,21 @@ import EmojiPicker from "emoji-picker-react";
 import IconCustom from "../../IconCustom";
 import { IoMdSend } from "react-icons/io";
 
-const InputPost = ({ comment, top, send, width, left, mb, widthEmoji }) => {
+const InputPost = ({
+  comment,
+  top,
+  send,
+  width,
+  left,
+  mb,
+  widthEmoji,
+  value,
+  handleEmojiClick,
+  setValue,
+}) => {
   // handle emoji
   const [openEmoji, setOpenEmoji] = useState(false);
-  const [value, setValue] = useState("");
+  // const [value, setValue] = useState("");
 
   const outEmojiRef = useRef(null);
   useOutsideClick({
@@ -22,10 +33,10 @@ const InputPost = ({ comment, top, send, width, left, mb, widthEmoji }) => {
     handler: () => setOpenEmoji(false),
   });
 
-  const handleEmojiClick = (emojiObject) => {
-    const newEmoji = emojiObject.emoji;
-    setValue((prevValue) => prevValue + newEmoji);
-  };
+  // const handleEmojiClick = (emojiObject) => {
+  //   const newEmoji = emojiObject.emoji;
+  //   setValue((prevValue) => prevValue + newEmoji);
+  // };
 
   return (
     <InputGroup>
