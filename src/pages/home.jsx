@@ -1,15 +1,20 @@
-import { Box, Flex } from "@chakra-ui/react";
+import { Box, Flex, Text } from "@chakra-ui/react";
 import MyProfile from "../components/home/profile/MyProfile";
 import Suggestions from "../components/home/Suggestions";
 import CreatePost from "../components/home/post/CreatePost";
 import Post from "../components/home/post/Post";
 import UserOnline from "../components/home/UserOnline";
 import useGetPostHome from "../hooks/post/useGetPostHome";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 const Home = () => {
-  const { loading, posts } = useGetPostHome();
+  const { loading, posts, hasMore, setPage } = useGetPostHome();
 
-  console.log("posts", posts);
+  // console.log("posts", posts);
+
+  const fetchMoreData = () => {
+    setPage((prevPage) => prevPage + 1);
+  };
 
   return (
     <Box
@@ -39,12 +44,20 @@ const Home = () => {
               fontSize="30px"
               fontWeight="bold"
             >
-              Let's make friend to watch more post{" "}
+              Let's make friends to watch more posts
             </Flex>
           ) : (
-            posts.map((item) => {
-              return <Post key={item._id} post={item} />;
-            })
+            <InfiniteScroll
+              dataLength={posts.length}
+              next={fetchMoreData}
+              hasMore={hasMore}
+              loader={<Box>Loading...</Box>}
+              endMessage={<Text align="center">No more posts</Text>}
+            >
+              {posts?.map((post) => (
+                <Post key={post?._id} post={post} />
+              ))}
+            </InfiniteScroll>
           )}
         </Flex>
 

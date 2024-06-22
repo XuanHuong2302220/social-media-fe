@@ -11,17 +11,17 @@ import {
 } from "@chakra-ui/react";
 import React from "react";
 import useDeletePost from "../../hooks/post/useDeletePost";
-import { deleteObject, getStorage } from "firebase/storage";
-import app from "../../firebase/config";
+import usePostHome from "../../zustands/usePostHome";
 
-const ModalDeletePost = ({ isOpen, onClose, postId, postImg }) => {
+const ModalDeletePost = ({ isOpen, onClose, postId }) => {
   //get hook to delete post
   const { loading, deletePost } = useDeletePost();
+  const { clearPostHome } = usePostHome();
 
   //handleDeletePost
   const handleDeletePost = async () => {
+    clearPostHome({ _id: postId });
     await deletePost(postId);
-    window.location.reload();
   };
 
   return (

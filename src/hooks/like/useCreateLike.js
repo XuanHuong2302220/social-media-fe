@@ -1,15 +1,16 @@
 import { useToast } from "@chakra-ui/react";
 import axios from "axios";
 import { useAuthContext } from "../../contexts/authContext";
+import config from "../../config/urlConfig";
 
-const useCreateLike = (postId) => {
+const useCreateLike = () => {
   const toast = useToast();
   const { authUser } = useAuthContext();
 
-  const createLike = async () => {
+  const createLike = async (postId) => {
     try {
       await axios.post(
-        `/api/post/${postId}/like`,
+        `${config.baseURL}/api/post/${postId}/like`,
         {
           userLike: authUser._id,
         },

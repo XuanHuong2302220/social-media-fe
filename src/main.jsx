@@ -19,7 +19,6 @@ import VerifiedEmail from "./pages/verifiedEmail.jsx";
 
 const Router = () => {
   const { authUser } = useAuthContext();
-  console.log(authUser);
 
   const router = createBrowserRouter([
     {

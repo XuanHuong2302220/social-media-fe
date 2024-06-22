@@ -16,24 +16,19 @@ import {
   Skeleton,
   Spinner,
 } from "@chakra-ui/react";
-
-import { useEffect, useState } from "react";
-
+import { useState } from "react";
 import Post from "../Post";
 import Comment from "./Comment";
 import InputPost from "../InputPost";
 import useGetComments from "../../../../hooks/comment/useGetComments";
 import useGetPost from "../../../../hooks/post/useGetPost";
 import useGetUser from "../../../../hooks/user/useGetUser";
-import usePost from "../../../../zustands/usePost";
 
-const ModalComment = ({ isOpenModal, onCloseModal, post }) => {
+export const ModalComment = ({ isOpenModal, onCloseModal, post }) => {
   const [customClose, setCustomClose] = useState(false);
   const { isOpen, onClose, onOpen } = useDisclosure();
 
   const { post: postDetail, loading } = useGetPost();
-
-  console.log("post", post);
 
   const { user } = useGetUser(post?.authorId);
 
@@ -61,8 +56,7 @@ const ModalComment = ({ isOpenModal, onCloseModal, post }) => {
   };
 
   const { comments, loading: loadingComment } = useGetComments();
-  // console.log("comments", comments[post?._id]);
-
+  // console.log("comments", comments);
   return (
     <Box>
       <Modal isOpen={isOpenModal} onClose={handleClose}>
@@ -185,5 +179,3 @@ const ModalComment = ({ isOpenModal, onCloseModal, post }) => {
     </Box>
   );
 };
-
-export default ModalComment;

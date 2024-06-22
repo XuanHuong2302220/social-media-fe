@@ -17,13 +17,19 @@ const ModalCreatePost = ({
   setImage,
   setImageURL,
   onCloseModal,
+  update,
 }) => {
   const handleClose = () => {
-    onClose();
-    setValue("");
-    setImage("");
-    setImageURL("");
-    onCloseModal();
+    if (update) {
+      onCloseModal();
+      onClose();
+    } else {
+      onClose();
+      setValue("");
+      setImage("");
+      setImageURL("");
+      onCloseModal();
+    }
   };
   return (
     <Modal isOpen={isOpen} onClose={onClose}>

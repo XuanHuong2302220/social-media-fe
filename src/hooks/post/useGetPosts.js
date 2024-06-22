@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
-import usePost from "../../zustands/usePost";
 import axios from "axios";
 import config from "../../config/urlConfig";
 import { useToast } from "@chakra-ui/react";
 import { useParams } from "react-router-dom";
 
 const useGetPosts = () => {
-  const { posts, setPost } = usePost();
+  const [posts, setPost] = useState([]); // [1
   const [loading, setLoading] = useState(true);
   const toast = useToast();
   const { id } = useParams();

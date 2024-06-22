@@ -1,11 +1,12 @@
 import { useState } from "react";
-import usePost from "./../../zustands/usePost";
 import axios from "axios";
 import config from "./../../config/urlConfig";
 import { useToast } from "@chakra-ui/react";
+import usePostHome from "../../zustands/usePostHome";
 
 const useCreatePost = () => {
   const [loading, setLoading] = useState(false);
+  const { postHome, setPostHome } = usePostHome();
   const toast = useToast();
 
   const createPost = async (title, image) => {
@@ -22,7 +23,8 @@ const useCreatePost = () => {
         }
       );
 
-      await response.data.post;
+      const data = await response.data.post;
+      setPostHome([data, ...postHome]);
     } catch (error) {
       toast({
         title: "Error",

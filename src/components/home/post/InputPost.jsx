@@ -4,12 +4,17 @@ import {
   InputRightElement,
   Box,
   useOutsideClick,
+  Input,
+  Spinner,
 } from "@chakra-ui/react";
 import { useState, useRef } from "react";
 import { GrEmoji } from "react-icons/gr";
 import EmojiPicker from "emoji-picker-react";
 import IconCustom from "../../IconCustom";
 import { IoMdSend } from "react-icons/io";
+import useCreateComment from "../../../hooks/comment/useCreateComment";
+import usePost from "../../../zustands/usePost";
+import useCreateReplyComment from "../../../hooks/replyComment/useCreateReplyComment";
 
 const InputPost = ({
   comment,
@@ -22,6 +27,8 @@ const InputPost = ({
   value,
   handleEmojiClick,
   setValue,
+  right,
+  reply,
 }) => {
   // handle emoji
   const [openEmoji, setOpenEmoji] = useState(false);
@@ -33,13 +40,32 @@ const InputPost = ({
     handler: () => setOpenEmoji(false),
   });
 
-  // const handleEmojiClick = (emojiObject) => {
-  //   const newEmoji = emojiObject.emoji;
-  //   setValue((prevValue) => prevValue + newEmoji);
-  // };
+  //handle send comment
+  const { createComment, loading } = useCreateComment();
+
+  const handleCreateComment = async (e) => {
+    e.preventDefault();
+    await createComment(value);
+    setValue("");
+  };
+
+  //handle send reply
+  const { createReplyComment, loading: loadingReply } = useCreateReplyComment();
+  const handleSendReply = async () => {
+    await createReplyComment(value);
+    setValue("");
+  };
+
+  const handleKeyDown = async (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      await createComment(value);
+      setValue("");
+    }
+  };
 
   return (
-    <InputGroup>
+    <InputGroup zIndex="1">
       <Textarea
         placeholder={comment ? "Write a comment..." : "What's happenning ?"}
         w={width ? width : "100%"}
@@ -63,14 +89,15 @@ const InputPost = ({
         left={left}
         mb={mb}
         rounded="15px"
+        onKeyDown={handleKeyDown}
       />
       <InputRightElement width={widthEmoji ? widthEmoji : "4.5rem"} gap="10px">
         <IconCustom onClick={() => setOpenEmoji(!openEmoji)}>
           <GrEmoji />
         </IconCustom>
         {send && value && (
-          <IconCustom>
-            <IoMdSend />
+          <IconCustom onClick={reply ? handleSendReply : handleCreateComment}>
+            {loading || loadingReply ? <Spinner /> : <IoMdSend />}
           </IconCustom>
         )}
       </InputRightElement>
@@ -78,11 +105,15 @@ const InputPost = ({
         <Box
           pos="absolute"
           top={top ? top : "45px"}
-          right="2px"
-          zIndex="2"
+          right={right ? right : "2px"}
+          zIndex="9999"
           ref={outEmojiRef}
         >
-          <EmojiPicker onEmojiClick={handleEmojiClick} height="330px" />
+          <EmojiPicker
+            onEmojiClick={handleEmojiClick}
+            height="330px"
+            theme="dark"
+          />
         </Box>
       )}
     </InputGroup>

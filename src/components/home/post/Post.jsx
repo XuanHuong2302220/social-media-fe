@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Avatar,
   Box,
@@ -20,13 +20,33 @@ import Popover from "../../popover/Popover";
 import ModalDeletePost from "./../../modals/ModalDeletePost";
 import Modals from "../Modals";
 import useCreateLike from "../../../hooks/like/useCreateLike";
-import useGetLike from "../../../hooks/like/useGetLike";
+import { useAuthContext } from "../../../contexts/authContext";
+import useDeleteLike from "../../../hooks/like/useDeleteLike";
+import ModalUserLike from "../../modals/ModalUserLike";
+import usePost from "../../../zustands/usePost";
+import useGetUser from "../../../hooks/user/useGetUser";
 
 const Post = ({ width, offModal, post }) => {
   const [seemore, setSeemore] = useState(false);
-  const [like, setLike] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [popover, setPopover] = useState(false);
+  const { authUser } = useAuthContext();
+  const [likeClick, setLikeClick] = useState(false);
+  const { likes, setLikes, setPost, comments, setComments } = usePost();
+
+  useEffect(() => {
+    setPost(post);
+
+    if (post?.like) {
+      setLikes(post?._id, post?.like);
+    }
+
+    if (post?.comment) {
+      setComments(post?._id, post?.comment);
+    }
+  }, [post, setPost, setLikes, setComments]);
+
+  // console.log("post", post);
 
   const limitWords = (content, limit) => {
     if (!content) return;
@@ -56,6 +76,7 @@ const Post = ({ width, offModal, post }) => {
     onOpen: onOpenDelete,
     onClose: onCloseDelete,
   } = useDisclosure();
+
   const handleDeleteClick = () => {
     onOpenDelete();
   };
@@ -66,32 +87,60 @@ const Post = ({ width, offModal, post }) => {
     onOpen: onOpenUpdate,
     onClose: onCloseUpdate,
   } = useDisclosure();
+
   const handleUpdateClick = () => {
+    setPost(post);
     onOpenUpdate();
   };
 
-  //handle like post
+  //handle click user liked
+  const {
+    isOpen: isOpenUserLiked,
+    onOpen: onOpenUserLiked,
+    onClose: onCloseUserLiked,
+  } = useDisclosure();
+
+  // get likes
+  const handleGetLike = () => {
+    setPost(post);
+    onOpenUserLiked();
+  };
+
+  const { user } = useGetUser(post?.authorId);
+
+  //handle like and delete like post
   const { createLike } = useCreateLike();
-  const handleLikePost = async () => {
-    setLike(!like);
-    if (like) {
-      //call api create like
-      await createLike(post._id);
+  const { deleteLike } = useDeleteLike();
+
+  useEffect(() => {
+    const userLiked = likes[post?._id]?.includes(authUser?._id);
+    setLikeClick(userLiked);
+  }, [likes, post?._id, authUser]);
+
+  const handleLike = async () => {
+    const updateLike = likeClick
+      ? likes[post?._id].filter((id) => id !== authUser?._id)
+      : [...likes[post?._id], authUser?._id];
+    setLikes(post?._id, updateLike);
+    setLikeClick(!likeClick);
+    if (likeClick) {
+      await deleteLike(post?._id);
     } else {
-      //call api delete like
+      await createLike(post?._id);
     }
   };
 
-  //get like
-  const { likes } = useGetLike(post._id);
+  // handle setpost modalcomment
 
-  const handleLike = () => {
-    //call api get like
-    if (likes) {
-      setLike(true);
-    } else {
-      setLike(false);
-    }
+  const handleOpenModalComment = async () => {
+    // setPost(post);
+    // console.log("post", post);
+    onOpen();
+  };
+
+  const handleCloseModalComment = async () => {
+    setPost(null);
+    onClose();
   };
 
   return (
@@ -118,7 +167,7 @@ const Post = ({ width, offModal, post }) => {
                   fontWeight="bold"
                   _hover={{ cursor: "pointer", textDecoration: "underline" }}
                 >
-                  {post?.authorName}
+                  {user?.fullName}
                 </Text>
               </Link>
               <Text color="GrayText" fontSize="12px">
@@ -140,8 +189,8 @@ const Post = ({ width, offModal, post }) => {
             <ModalDeletePost
               onClose={onCloseDelete}
               isOpen={isOpenDelete}
-              postId={post._id}
-              postImg={post.image}
+              postId={post?._id}
+              postImg={post?.image}
             />
             <Modals
               isOpen={isOpenUpdate}
@@ -149,7 +198,7 @@ const Post = ({ width, offModal, post }) => {
               valueUpdate={post?.title}
               imageUpdate={post?.image}
               update
-              postId={post._id}
+              post={post}
             />
           </Box>
         </Flex>
@@ -180,7 +229,8 @@ const Post = ({ width, offModal, post }) => {
           mt={3}
           cursor="pointer"
           h="auto"
-          onClick={onOpen}
+          onClick={handleOpenModalComment}
+          maxHeight="600px"
         />
 
         {/* interact and comments */}
@@ -190,13 +240,20 @@ const Post = ({ width, offModal, post }) => {
             color="GrayText"
             fontSize="14px"
             _hover={{
-              cursor: post?.like > 0 && "pointer",
-              textDecoration: post?.like > 0 && "underline",
+              cursor: likes[post?._id]?.length > 0 && "pointer",
+              textDecoration: likes[post?._id]?.length > 0 && "underline",
             }}
+            onClick={handleGetLike}
           >
-            {post?.like > 0
-              ? formatNumber(post?.like) + "Like"
+            {likes[post?._id]?.length > 0
+              ? formatNumber(likes[post._id].length) + " Like"
               : "Be the first to like this"}
+
+            {/* <ModalUserLike
+              isOpen={isOpenUserLiked}
+              onClose={onCloseUserLiked}
+              postLike={likes}
+            /> */}
           </Box>
 
           <Box
@@ -208,22 +265,26 @@ const Post = ({ width, offModal, post }) => {
               textDecoration: "underline",
             }}
           >
-            {post?.comment + " Comments"}
+            {comments[post?._id]?.length + " Comments"}
           </Box>
         </Flex>
 
         <Flex justify="space-between" gap={2}>
-          <Interact pos="relative" onClick={handleLikePost}>
+          <Interact pos="relative" onClick={handleLike}>
             <FaHeart
-              color={like ? "#ff3040" : null}
+              color={likeClick ? "#ff3040" : null}
               style={{ fontSize: "20px" }}
             />
 
-            <Box as="span" color={like ? "#ff3040" : null} fontWeight="bold">
+            <Box
+              as="span"
+              color={likeClick ? "#ff3040" : null}
+              fontWeight="bold"
+            >
               Like
             </Box>
           </Interact>
-          <Interact onClick={onOpen}>
+          <Interact onClick={handleOpenModalComment}>
             <FaRegComment style={{ fontSize: "20px" }} />
             <Box as="span" fontWeight="bold">
               Comment
@@ -234,7 +295,11 @@ const Post = ({ width, offModal, post }) => {
         {/* modal comment */}
       </Flex>
       {!offModal && (
-        <ModalComment isOpenModal={isOpen} onCloseModal={onClose} post={post} />
+        <ModalComment
+          isOpenModal={isOpen}
+          onCloseModal={handleCloseModalComment}
+          post={post}
+        />
       )}
     </Box>
   );

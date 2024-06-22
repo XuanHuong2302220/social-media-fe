@@ -37,9 +37,6 @@ const MyProfile = () => {
   const { following } = useGetFollowing();
   const { follower } = useGetFollower();
 
-  console.log("following", following);
-  console.log("follower", follower);
-
   return (
     <Flex
       cursor="pointer"

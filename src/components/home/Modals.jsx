@@ -25,6 +25,7 @@ import ModalCreatePost from "../modals/ModalCreatePost";
 import useUpdatePost from "../../hooks/post/useUpdatePost";
 import checkImage from "../../firebase/checkImage";
 import { IoIosClose } from "react-icons/io";
+import usePostHome from "../../zustands/usePostHome";
 
 const Modals = ({
   isOpen,
@@ -32,12 +33,16 @@ const Modals = ({
   valueUpdate,
   imageUpdate,
   update,
-  postId,
+  post,
 }) => {
-  // handle input file
-  const inputRef = useRef(null);
   const [image, setImage] = useState("");
   const [imageURL, setImageURL] = useState("");
+  const inputRef = useRef(null);
+
+  //get hook of create post
+  const { loading, createPost } = useCreatePost();
+  const [value, setValue] = useState("");
+
   const {
     isOpen: isOpenDelete,
     onOpen: onOpenDelete,
@@ -48,10 +53,6 @@ const Modals = ({
     e.preventDefault();
     inputRef.current.click();
   };
-
-  //get hook of create post
-  const { loading, createPost } = useCreatePost();
-  const [value, setValue] = useState("");
 
   //handle emoji click
   const handleEmojiClick = (emojiObject) => {
@@ -81,6 +82,7 @@ const Modals = ({
           await uploadBytes(storageRef, image);
           downloadURL = await getDownloadURL(storageRef);
         }
+        downloadURL = existsImage;
       } catch (error) {
         console.log(error);
       }
@@ -91,7 +93,7 @@ const Modals = ({
     setValue("");
     setImage("");
     setImageURL("");
-    window.location.reload();
+    onClose();
   };
 
   //handle change image
@@ -162,11 +164,9 @@ const Modals = ({
     } else {
       downloadURL = imageUpdate;
     }
-    await updatePost(postId, value, downloadURL);
-    setValue("");
-    setImage("");
-    setImageURL("");
-    window.location.reload();
+    await updatePost(value, downloadURL);
+
+    onClose();
   };
 
   return (
@@ -264,6 +264,7 @@ const Modals = ({
           </Flex>
 
           <ModalCreatePost
+            update
             isOpen={isOpenDelete}
             onClose={onCloseDelete}
             setImage={setImage}

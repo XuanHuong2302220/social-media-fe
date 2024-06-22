@@ -3,16 +3,19 @@ import axios from "axios";
 import { useState } from "react";
 import config from "../../config/urlConfig";
 import usePost from "../../zustands/usePost";
+import usePostHome from "../../zustands/usePostHome";
 
 const useUpdatePost = () => {
   const [loading, setLoading] = useState(false);
   const toast = useToast();
+  const { post, updatedPost } = usePost();
+  const { updatePostHome } = usePostHome();
 
-  const updatePost = async (postId, title, image) => {
+  const updatePost = async (title, image) => {
     setLoading(true);
     try {
-      await axios.put(
-        `${config.baseURL}/api/posts/${postId}`,
+      const response = await axios.put(
+        `${config.baseURL}/api/posts/${post?._id}`,
         {
           title,
           image,
@@ -21,6 +24,10 @@ const useUpdatePost = () => {
           withCredentials: true,
         }
       );
+
+      const data = await response.data;
+      updatedPost(data);
+      updatePostHome(data);
     } catch (error) {
       toast({
         title: "Error",
@@ -33,6 +40,7 @@ const useUpdatePost = () => {
       setLoading(false);
     }
   };
+
   return { updatePost, loading };
 };
 
